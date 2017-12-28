@@ -56,18 +56,26 @@ def __load_module(name, version):
 def unload_all_module(name):
     _map = multi_version_space.__map__
     v_modules = _map.get(name)
-    for m in v_modules:
-        multi_version_space.__cache__.pop(m)
-        sys.modules.pop(m)
-    _map.pop(name)
+    if v_modules:
+        for m in v_modules:
+            multi_version_space.__cache__.pop(m)
+            sys.modules.pop(m)
+        _map.pop(name)
+        return True
+    return False
 
 
 def unload_module(name, version):
     __module_check(name, version)
     i_module = __intern_module_name(name, version)
-    multi_version_space.__cache__.pop(i_module)
-    multi_version_space.__map__.get(name).remove(i_module)
-    sys.modules.pop(i_module)
+    _cache = multi_version_space.__cache__
+    _map = multi_version_space.__map__
+    if name in _map and i_module in _cache:
+        _cache.pop(i_module)
+        _map.get(name).remove(i_module)
+        sys.modules.pop(i_module)
+        return True
+    return False
 
 
 def import_module(name, version, force=False):
