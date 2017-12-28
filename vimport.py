@@ -87,16 +87,13 @@ def import_module(name, version, force=False):
     if force:
         unload_module(name, version)
 
-    if name not in _map:
-        _map[name] = set()
-
     if mod_name not in _cache:
         if not __is_module_loaded(name, version):
             if __load_module(name, version):
                 real_name = __real_module_name(name, version)
                 i_module = importlib.import_module(real_name)
                 _cache[mod_name] = i_module
-                _map[name].add(mod_name)
+                _map.setdefault(name, set()).add(mod_name)
     return _cache.get(mod_name)
 
 
